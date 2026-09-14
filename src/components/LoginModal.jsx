@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Lock, Mail, UserCheck, Shield } from "lucide-react";
+import { X, Lock, Mail, UserCheck } from "lucide-react";
 
 export const LoginModal = ({ isOpen, onClose, onLogin }) => {
   const [email, setEmail] = useState("");

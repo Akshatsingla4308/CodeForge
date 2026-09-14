@@ -1,6 +1,6 @@
 import React from "react";
 import { SparklesCore } from "./SparklesCore";
-import { ArrowRight, Code2, Zap, Lock, Cpu, Play, CheckCircle2, ChevronRight } from "lucide-react";
+import { ArrowRight, Code2, Zap, Lock, Cpu, Play, ChevronRight, Shield } from "lucide-react";
 
 export const LandingPage = ({ onGetStarted, onSelectQuestion, questions = [], onOpenAdmin }) => {
   const safeQuestions = Array.isArray(questions) ? questions : [];

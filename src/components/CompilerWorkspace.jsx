@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Play, RotateCcw, CheckCircle2, XCircle, Code2, Terminal, Info, Globe, Cpu } from "lucide-react";
 import { executeExternalCode } from "../utils/javaRunner";
+import { initialQuestions } from "../data/questionsData";
 
-export const CompilerWorkspace = ({ questions, activeQuestionId, setActiveQuestionId }) => {
+export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQuestionId }) => {
   const [selectedLang, setSelectedLang] = useState("Java");
   const [langNotice, setLangNotice] = useState("");
 
+  const safeQuestions = Array.isArray(questions) && questions.length > 0 ? questions : initialQuestions;
   const currentQuestion =
-    questions.find((q) => q.id === activeQuestionId) || questions[0] || null;
+    safeQuestions.find((q) => q.id === activeQuestionId) || safeQuestions[0] || null;
 
-  const [code, setCode] = useState(currentQuestion ? currentQuestion.starterCode : "");
+  const [code, setCode] = useState(currentQuestion ? currentQuestion.starterCode || "" : "");
   const [runResult, setRunResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     if (currentQuestion) {
-      setCode(currentQuestion.starterCode);
+      setCode(currentQuestion.starterCode || "");
       setRunResult(null);
     }
   }, [currentQuestion?.id]);
@@ -31,7 +33,7 @@ export const CompilerWorkspace = ({ questions, activeQuestionId, setActiveQuesti
 
   const handleResetCode = () => {
     if (currentQuestion) {
-      setCode(currentQuestion.starterCode);
+      setCode(currentQuestion.starterCode || "");
       setRunResult(null);
     }
   };
@@ -41,17 +43,18 @@ export const CompilerWorkspace = ({ questions, activeQuestionId, setActiveQuesti
     setRunResult(null);
 
     const result = await executeExternalCode(
-      code,
+      code || "",
       selectedLang,
-      currentQuestion ? currentQuestion.expectedOutput : "",
-      currentQuestion ? currentQuestion.sampleInput : ""
+      currentQuestion ? currentQuestion.expectedOutput || "" : "",
+      currentQuestion ? currentQuestion.sampleInput || "" : ""
     );
 
     setRunResult(result);
     setIsRunning(false);
   };
 
-  const lineCount = Math.max(code.split("\n").length, 14);
+  const safeCode = typeof code === "string" ? code : "";
+  const lineCount = Math.max(safeCode.split("\n").length, 14);
   const lineNumbers = Array.from({ length: lineCount }, (_, i) => i + 1);
 
   return (
@@ -97,7 +100,7 @@ export const CompilerWorkspace = ({ questions, activeQuestionId, setActiveQuesti
           </button>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           {langNotice && (
             <div className="lang-notice">
               <Info size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} />
@@ -113,9 +116,9 @@ export const CompilerWorkspace = ({ questions, activeQuestionId, setActiveQuesti
       </div>
 
       <div className="problem-selector-strip">
-        {questions.map((q, idx) => (
+        {safeQuestions.map((q, idx) => (
           <button
-            key={q.id}
+            key={q.id || idx}
             className={`problem-pill ${currentQuestion?.id === q.id ? "active" : ""}`}
             onClick={() => setActiveQuestionId(q.id)}
           >

@@ -2,7 +2,8 @@ import React from "react";
 import { SparklesCore } from "./SparklesCore";
 import { ArrowRight, Code2, Zap, Lock, Cpu, Play, CheckCircle2, ChevronRight } from "lucide-react";
 
-export const LandingPage = ({ onGetStarted, onSelectQuestion, questions, onOpenAdmin }) => {
+export const LandingPage = ({ onGetStarted, onSelectQuestion, questions = [], onOpenAdmin }) => {
+  const safeQuestions = Array.isArray(questions) ? questions : [];
   return (
     <div className="landing-container">
       <section className="hero-section">
@@ -91,7 +92,7 @@ export const LandingPage = ({ onGetStarted, onSelectQuestion, questions, onOpenA
         </div>
 
         <div className="problem-cards-grid">
-          {questions.slice(0, 3).map((q) => (
+          {safeQuestions.slice(0, 3).map((q) => (
             <div key={q.id} className="problem-card">
               <div>
                 <div className="problem-card-top">

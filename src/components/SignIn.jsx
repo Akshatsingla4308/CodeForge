@@ -1,29 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
-import { Terminal, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Terminal, Lock, Mail, AlertCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export const SignIn = () => {
   const navigate = useNavigate();
-  const { user, login, demoEmail, demoPassword } = useAuth();
+  const { user, login, defaultEmail, defaultPassword } = useAuth();
 
-  // If already authenticated, redirect directly to dashboard
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  // Local state for form inputs and validation feedback
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Quick auto-fill helper for live evaluation presentation
-  const handleFillDemo = () => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setErrorMessage("");
-  };
+  // If already authenticated, redirect directly to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,7 +31,6 @@ export const SignIn = () => {
     setIsSubmitting(false);
 
     if (result.success) {
-      // Redirect authenticated user to Dashboard
       navigate("/dashboard");
     } else {
       setErrorMessage(result.message || "Invalid credentials.");
@@ -51,37 +42,18 @@ export const SignIn = () => {
       <div className="auth-card">
         {/* Brand Header */}
         <div className="auth-header">
-          <div className="logo-badge" style={{ margin: "0 auto 1rem", width: "48px", height: "48px" }}>
-            <Terminal size={24} />
-          </div>
-          <h1 className="auth-title">
-            Sign In to Code<span>Forge</span>
-          </h1>
+          <Link to="/" className="nav-brand" style={{ justifyContent: "center", marginBottom: "1.25rem" }}>
+            <div className="logo-badge">
+              <Terminal size={20} strokeWidth={2.5} />
+            </div>
+            <div className="brand-title">
+              Code<span>Forge</span>
+            </div>
+          </Link>
+          <h1 className="auth-title">Sign In</h1>
           <p className="auth-subtitle">
-            Enter your credentials to access your coding dashboard and practice workspace.
+            Enter your credentials to access your workspace and problem library.
           </p>
-        </div>
-
-        {/* Demo Credentials Box */}
-        <div className="demo-credentials-banner">
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
-            <CheckCircle2 size={16} color="#ff6a00" />
-            <strong style={{ color: "#fff", fontSize: "0.88rem" }}>Evaluation Demo Credentials</strong>
-          </div>
-          <div className="demo-creds-row">
-            <span>Email: <code>{demoEmail}</code></span>
-            <span>Password: <code>{demoPassword}</code></span>
-          </div>
-          <button
-            type="button"
-            className="btn-demo-fill"
-            onClick={handleFillDemo}
-          >
-            Click to Auto-Fill Demo Account
-          </button>
-          <div style={{ fontSize: "0.74rem", color: "var(--text-dim)", marginTop: "0.4rem" }}>
-            * Demonstrator mode: Client-side session saved in browser localStorage.
-          </div>
         </div>
 
         {/* Error Feedback */}
@@ -107,6 +79,7 @@ export const SignIn = () => {
                   setEmail(e.target.value);
                   setErrorMessage("");
                 }}
+                autoComplete="email"
                 required
               />
               <Mail size={16} style={{ position: "absolute", left: "0.85rem", color: "var(--text-dim)" }} />
@@ -126,6 +99,7 @@ export const SignIn = () => {
                   setPassword(e.target.value);
                   setErrorMessage("");
                 }}
+                autoComplete="current-password"
                 required
               />
               <Lock size={16} style={{ position: "absolute", left: "0.85rem", color: "var(--text-dim)" }} />
@@ -143,11 +117,16 @@ export const SignIn = () => {
           </button>
         </form>
 
+        {/* Subtle evaluation credentials hint */}
+        <div className="auth-eval-note">
+          <span>Demonstration account:</span> <code>{defaultEmail}</code> / <code>{defaultPassword}</code>
+        </div>
+
         {/* Link to Sign Up */}
         <div className="auth-footer-link">
-          Don't have an account yet?{" "}
+          Don't have an account?{" "}
           <Link to="/signup" className="auth-accent-link">
-            Create Demo Account
+            Sign Up
           </Link>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Search, Play, CheckCircle2, ChevronRight, Terminal, Filter } from "lucide-react";
+import { Search, Play, CheckCircle2, ChevronRight, Terminal } from "lucide-react";
 import { initialQuestions } from "../data/questionsData";
 import { useAuth } from "../context/AuthContext";
 
@@ -36,13 +36,9 @@ export const Problems = ({ questions = [] }) => {
       {/* Header Banner */}
       <div className="problems-header">
         <div>
-          <div className="dashboard-pill" style={{ display: "inline-flex", marginBottom: "0.75rem" }}>
-            <BookOpen size={14} color="#ff6a00" />
-            <span>Problem Arena</span>
-          </div>
-          <h1 className="problems-title">Programming Challenges</h1>
+          <h1 className="problems-title">Problems</h1>
           <p className="problems-subtitle">
-            Explore algorithm problems, test your solutions in multiple languages, and track your success.
+            Browse algorithm challenges, filter by difficulty, and practice in your preferred language.
           </p>
         </div>
 

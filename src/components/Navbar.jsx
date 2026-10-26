@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Terminal, Code2, LogIn, LogOut, User, Lock, BookOpen, LayoutDashboard, UserCheck } from "lucide-react";
+import { Terminal, Code2, LogIn, LogOut, User, Lock, Unlock, BookOpen, LayoutDashboard } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export const Navbar = ({ isAdminUnlocked }) => {
@@ -56,7 +56,7 @@ export const Navbar = ({ isAdminUnlocked }) => {
               className={`nav-btn ${isActive("/practice") ? "active" : ""}`}
             >
               <Code2 size={16} />
-              Practice Arena
+              Practice
             </Link>
 
             <Link
@@ -71,7 +71,7 @@ export const Navbar = ({ isAdminUnlocked }) => {
               to="/admin"
               className={`nav-btn ${isActive("/admin") ? "active" : ""}`}
             >
-              <Lock size={15} color="#ff6a00" />
+              {isAdminUnlocked ? <Unlock size={15} color="#22c55e" /> : <Lock size={15} color="#ff6a00" />}
               Admin
             </Link>
           </>
@@ -104,10 +104,10 @@ export const Navbar = ({ isAdminUnlocked }) => {
               className="btn-secondary"
               onClick={handleLogout}
               style={{ padding: "0.45rem 0.85rem", fontSize: "0.85rem" }}
-              title="Sign Out of Demo"
+              title="Sign out of account"
             >
               <LogOut size={15} />
-              <span>Logout</span>
+              <span>Sign Out</span>
             </button>
           </div>
         ) : (

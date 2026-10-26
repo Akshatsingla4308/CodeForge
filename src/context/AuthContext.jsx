@@ -3,61 +3,68 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 // Create the Authentication Context
 const AuthContext = createContext(null);
 
-// Default Demo Credentials required for evaluation
-const DEMO_EMAIL = "demo@codeforge.dev";
-const DEMO_PASSWORD = "CodeForge123";
+// Primary evaluation / owner account credentials
+export const DEFAULT_ACCOUNT_EMAIL = "aksaht.singla@gmail.com";
+export const DEFAULT_ACCOUNT_NAME = "Akshat Singla";
+export const DEFAULT_PASSWORD = "CodeForge123";
+export const EVAL_DEMO_EMAIL = "demo@codeforge.dev";
 
-// Demo-only pseudo hashing function (for evaluation purposes, never claim this is production-secure)
+// Client-side demonstration hashing helper
 const hashPassword = (pwd) => {
   try {
-    return btoa("codeforge_demo_salt_" + pwd);
+    return btoa("codeforge_client_salt_" + pwd);
   } catch (e) {
-    return "demo_hash_" + pwd;
+    return "client_hash_" + pwd;
   }
 };
 
-// Initial sample activity data for the demo user
-const getInitialDemoProgress = () => ({
-  attemptedQuestions: ["q-1", "q-2", "q-3"],
-  solvedQuestions: ["q-1", "q-2"],
+// Safe blank initial progress structure for any user
+const getCleanProgress = () => ({
+  attemptedQuestions: [],
+  solvedQuestions: [],
   preferredLanguage: "Java",
-  activity: [
-    {
-      id: "act-1",
-      questionId: "q-1",
-      questionTitle: "Hello World",
-      language: "Java",
-      passed: true,
-      timestamp: "Yesterday at 4:30 PM",
-      statusText: "Accepted"
-    },
-    {
-      id: "act-2",
-      questionId: "q-2",
-      questionTitle: "Sum of Two Numbers",
-      language: "Java",
-      passed: true,
-      timestamp: "Today at 10:15 AM",
-      statusText: "Accepted"
-    },
-    {
-      id: "act-3",
-      questionId: "q-3",
-      questionTitle: "Even or Odd",
-      language: "Python",
-      passed: false,
-      timestamp: "Today at 11:45 AM",
-      statusText: "Output Mismatch"
-    }
-  ]
+  activity: []
 });
+
+// Sanitizes stored progress to ensure fabricated legacy mock data is eliminated
+const sanitizeProgress = (data) => {
+  if (!data || typeof data !== "object") return getCleanProgress();
+
+  // If this progress still contains legacy fabricated mock activity, reset to clean state
+  const hasLegacyMockActivity =
+    Array.isArray(data.activity) &&
+    data.activity.some((a) => a?.timestamp === "Yesterday at 4:30 PM" || a?.id === "act-1");
+
+  if (hasLegacyMockActivity) {
+    return getCleanProgress();
+  }
+
+  return {
+    attemptedQuestions: Array.isArray(data.attemptedQuestions) ? data.attemptedQuestions : [],
+    solvedQuestions: Array.isArray(data.solvedQuestions) ? data.solvedQuestions : [],
+    preferredLanguage: data.preferredLanguage || "Java",
+    activity: Array.isArray(data.activity) ? data.activity : []
+  };
+};
 
 export const AuthProvider = ({ children }) => {
   // 1. Current logged-in user state
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem("codeforge_current_user");
-      return savedUser ? JSON.parse(savedUser) : null;
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        // Cleanse legacy "Demo Developer" label if present
+        if (parsed?.name === "Demo Developer") {
+          parsed.name = DEFAULT_ACCOUNT_NAME;
+          if (parsed.email === EVAL_DEMO_EMAIL) {
+            parsed.email = DEFAULT_ACCOUNT_EMAIL;
+          }
+          localStorage.setItem("codeforge_current_user", JSON.stringify(parsed));
+        }
+        return parsed;
+      }
+      return null;
     } catch (err) {
       return null;
     }
@@ -69,73 +76,57 @@ export const AuthProvider = ({ children }) => {
       const savedUser = localStorage.getItem("codeforge_current_user");
       if (savedUser) {
         const u = JSON.parse(savedUser);
-        const savedProgress = localStorage.getItem(`codeforge_progress_${u.email}`);
-        if (savedProgress) {
-          return JSON.parse(savedProgress);
-        }
-        if (u.email === DEMO_EMAIL) {
-          return getInitialDemoProgress();
+        if (u?.email) {
+          const key = `codeforge_progress_${u.email.toLowerCase()}`;
+          const savedProgress = localStorage.getItem(key);
+          if (savedProgress) {
+            return sanitizeProgress(JSON.parse(savedProgress));
+          }
         }
       }
-      return {
-        attemptedQuestions: [],
-        solvedQuestions: [],
-        preferredLanguage: "Java",
-        activity: []
-      };
+      return getCleanProgress();
     } catch (err) {
-      return {
-        attemptedQuestions: [],
-        solvedQuestions: [],
-        preferredLanguage: "Java",
-        activity: []
-      };
+      return getCleanProgress();
     }
   });
 
-  // Sync user progress whenever active user changes
-  useEffect(() => {
-    if (user?.email) {
-      try {
-        const key = `codeforge_progress_${user.email}`;
-        const savedProgress = localStorage.getItem(key);
-        if (savedProgress) {
-          setUserProgress(JSON.parse(savedProgress));
-        } else if (user.email === DEMO_EMAIL) {
-          const init = getInitialDemoProgress();
-          localStorage.setItem(key, JSON.stringify(init));
-          setUserProgress(init);
-        } else {
-          const initNew = {
-            attemptedQuestions: [],
-            solvedQuestions: [],
-            preferredLanguage: "Java",
-            activity: []
-          };
-          localStorage.setItem(key, JSON.stringify(initNew));
-          setUserProgress(initNew);
-        }
-      } catch (err) {
-        console.error("Error loading user progress:", err);
-      }
-    }
-  }, [user?.email]);
-
-  // Ensure demo account is seeded in localStorage accounts list
+  // Ensure accounts list exists and is seeded with Akshat Singla's account
   useEffect(() => {
     try {
       const savedAccounts = localStorage.getItem("codeforge_accounts");
       let accounts = savedAccounts ? JSON.parse(savedAccounts) : [];
-      const hasDemo = accounts.some((acc) => acc.email.toLowerCase() === DEMO_EMAIL.toLowerCase());
 
-      if (!hasDemo) {
+      // Cleanse legacy demo developer name from any existing accounts in localStorage
+      let accountsModified = false;
+      accounts = accounts.map((acc) => {
+        if (acc.name === "Demo Developer") {
+          accountsModified = true;
+          return {
+            ...acc,
+            name: DEFAULT_ACCOUNT_NAME,
+            email: acc.email === EVAL_DEMO_EMAIL ? DEFAULT_ACCOUNT_EMAIL : acc.email
+          };
+        }
+        return acc;
+      });
+
+      const hasAkshat = accounts.some(
+        (acc) => acc.email.toLowerCase() === DEFAULT_ACCOUNT_EMAIL.toLowerCase()
+      );
+
+      if (!hasAkshat) {
         accounts.push({
-          id: "demo-user-01",
-          name: "Demo Developer",
-          email: DEMO_EMAIL,
-          passwordHash: hashPassword(DEMO_PASSWORD),
-          createdAt: "2026-10-01"
+          id: "user-akshat-01",
+          name: DEFAULT_ACCOUNT_NAME,
+          email: DEFAULT_ACCOUNT_EMAIL,
+          passwordHash: hashPassword(DEFAULT_PASSWORD),
+          role: "Developer",
+          createdAt: "2026-10-26"
         });
+        accountsModified = true;
+      }
+
+      if (accountsModified || !savedAccounts) {
         localStorage.setItem("codeforge_accounts", JSON.stringify(accounts));
       }
     } catch (err) {
@@ -143,38 +134,65 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // Sync user progress whenever active user changes
+  useEffect(() => {
+    if (user?.email) {
+      try {
+        const key = `codeforge_progress_${user.email.toLowerCase()}`;
+        const savedProgress = localStorage.getItem(key);
+        if (savedProgress) {
+          const cleaned = sanitizeProgress(JSON.parse(savedProgress));
+          setUserProgress(cleaned);
+        } else {
+          const initNew = getCleanProgress();
+          localStorage.setItem(key, JSON.stringify(initNew));
+          setUserProgress(initNew);
+        }
+      } catch (err) {
+        console.error("Error loading user progress:", err);
+      }
+    } else {
+      setUserProgress(getCleanProgress());
+    }
+  }, [user?.email]);
+
   // Login handler
   const login = (email, password) => {
     try {
       const cleanEmail = (email || "").trim().toLowerCase();
       const cleanPass = (password || "").trim();
 
-      // Check standard demo credentials directly
-      if (cleanEmail === DEMO_EMAIL.toLowerCase() && cleanPass === DEMO_PASSWORD) {
-        const demoUser = {
-          id: "demo-user-01",
-          name: "Demo Developer",
-          email: DEMO_EMAIL,
-          role: "Developer",
-          createdAt: "2026-10-01"
-        };
-        setUser(demoUser);
-        localStorage.setItem("codeforge_current_user", JSON.stringify(demoUser));
+      // Check registered accounts in localStorage
+      const savedAccounts = localStorage.getItem("codeforge_accounts");
+      let accounts = savedAccounts ? JSON.parse(savedAccounts) : [];
+      const enteredHash = hashPassword(cleanPass);
 
-        // Load or create demo progress
-        const demoProgKey = `codeforge_progress_${DEMO_EMAIL}`;
-        if (!localStorage.getItem(demoProgKey)) {
-          const init = getInitialDemoProgress();
-          localStorage.setItem(demoProgKey, JSON.stringify(init));
-          setUserProgress(init);
+      // Support default account or eval demo alias directly
+      if (
+        (cleanEmail === DEFAULT_ACCOUNT_EMAIL.toLowerCase() || cleanEmail === EVAL_DEMO_EMAIL) &&
+        cleanPass === DEFAULT_PASSWORD
+      ) {
+        const ownerUser = {
+          id: "user-akshat-01",
+          name: DEFAULT_ACCOUNT_NAME,
+          email: DEFAULT_ACCOUNT_EMAIL,
+          role: "Developer",
+          createdAt: "2026-10-26"
+        };
+        setUser(ownerUser);
+        localStorage.setItem("codeforge_current_user", JSON.stringify(ownerUser));
+
+        const progKey = `codeforge_progress_${DEFAULT_ACCOUNT_EMAIL.toLowerCase()}`;
+        const existingProg = localStorage.getItem(progKey);
+        if (existingProg) {
+          setUserProgress(sanitizeProgress(JSON.parse(existingProg)));
+        } else {
+          const clean = getCleanProgress();
+          localStorage.setItem(progKey, JSON.stringify(clean));
+          setUserProgress(clean);
         }
         return { success: true };
       }
-
-      // Check registered accounts in localStorage
-      const savedAccounts = localStorage.getItem("codeforge_accounts");
-      const accounts = savedAccounts ? JSON.parse(savedAccounts) : [];
-      const enteredHash = hashPassword(cleanPass);
 
       const found = accounts.find(
         (acc) => acc.email.toLowerCase() === cleanEmail && acc.passwordHash === enteredHash
@@ -185,17 +203,27 @@ export const AuthProvider = ({ children }) => {
           id: found.id,
           name: found.name,
           email: found.email,
-          role: "Developer",
+          role: found.role || "Developer",
           createdAt: found.createdAt || new Date().toISOString().split("T")[0]
         };
         setUser(loggedUser);
         localStorage.setItem("codeforge_current_user", JSON.stringify(loggedUser));
+
+        const progKey = `codeforge_progress_${found.email.toLowerCase()}`;
+        const existingProg = localStorage.getItem(progKey);
+        if (existingProg) {
+          setUserProgress(sanitizeProgress(JSON.parse(existingProg)));
+        } else {
+          const clean = getCleanProgress();
+          localStorage.setItem(progKey, JSON.stringify(clean));
+          setUserProgress(clean);
+        }
         return { success: true };
       }
 
       return {
         success: false,
-        message: "Invalid credentials. Use demo@codeforge.dev / CodeForge123 or create an account."
+        message: "Invalid email or password. Please verify your credentials or create an account."
       };
     } catch (err) {
       return { success: false, message: "Authentication error: " + err.message };
@@ -222,6 +250,7 @@ export const AuthProvider = ({ children }) => {
         name: cleanName,
         email: cleanEmail,
         passwordHash: hashPassword(cleanPass),
+        role: "Developer",
         createdAt: new Date().toISOString().split("T")[0]
       };
 
@@ -233,20 +262,15 @@ export const AuthProvider = ({ children }) => {
         id: newAccount.id,
         name: newAccount.name,
         email: newAccount.email,
-        role: "Developer",
+        role: newAccount.role,
         createdAt: newAccount.createdAt
       };
 
       setUser(loggedUser);
       localStorage.setItem("codeforge_current_user", JSON.stringify(loggedUser));
 
-      // Create blank progress record
-      const blankProg = {
-        attemptedQuestions: [],
-        solvedQuestions: [],
-        preferredLanguage: "Java",
-        activity: []
-      };
+      // Create blank progress record for the new user
+      const blankProg = getCleanProgress();
       localStorage.setItem(`codeforge_progress_${cleanEmail}`, JSON.stringify(blankProg));
       setUserProgress(blankProg);
 
@@ -260,12 +284,16 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("codeforge_current_user");
+    setUserProgress(getCleanProgress());
   };
 
   // Update profile name
   const updateProfile = (newName) => {
     if (!user) return;
-    const updatedUser = { ...user, name: newName.trim() };
+    const trimmed = (newName || "").trim();
+    if (!trimmed) return;
+
+    const updatedUser = { ...user, name: trimmed };
     setUser(updatedUser);
     localStorage.setItem("codeforge_current_user", JSON.stringify(updatedUser));
 
@@ -275,42 +303,51 @@ export const AuthProvider = ({ children }) => {
       if (savedAccounts) {
         const accounts = JSON.parse(savedAccounts);
         const updated = accounts.map((acc) =>
-          acc.email.toLowerCase() === user.email.toLowerCase() ? { ...acc, name: newName.trim() } : acc
+          acc.email.toLowerCase() === user.email.toLowerCase() ? { ...acc, name: trimmed } : acc
         );
         localStorage.setItem("codeforge_accounts", JSON.stringify(updated));
       }
     } catch (e) {}
   };
 
-  // Record an attempt and test execution result
+  // Record an attempt and test execution result with genuine timestamp
   const recordQuestionAttempt = ({ questionId, questionTitle, language, passed, statusText }) => {
     if (!user?.email) return;
 
     setUserProgress((prev) => {
-      // 1. Add to attempted questions if not already there
-      const attempted = prev.attemptedQuestions.includes(questionId)
-        ? prev.attemptedQuestions
-        : [...prev.attemptedQuestions, questionId];
+      const currentAttempted = Array.isArray(prev.attemptedQuestions) ? prev.attemptedQuestions : [];
+      const currentSolved = Array.isArray(prev.solvedQuestions) ? prev.solvedQuestions : [];
+      const currentActivity = Array.isArray(prev.activity) ? prev.activity : [];
 
-      // 2. Add to solved questions only if genuinely passed, avoiding duplicate counting
-      let solved = prev.solvedQuestions;
-      if (passed && !prev.solvedQuestions.includes(questionId)) {
-        solved = [...prev.solvedQuestions, questionId];
+      // 1. Add to attempted questions if not already there
+      const attempted = currentAttempted.includes(questionId)
+        ? currentAttempted
+        : [...currentAttempted, questionId];
+
+      // 2. Add to solved questions only if genuinely passed
+      let solved = currentSolved;
+      if (passed && !currentSolved.includes(questionId)) {
+        solved = [...currentSolved, questionId];
       }
 
-      // 3. Create activity entry with timestamp
+      // 3. Create real activity entry with authentic formatted timestamp
+      const now = new Date();
+      const realTimeFormatted = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const realDateFormatted = now.toLocaleDateString([], { month: "short", day: "numeric" });
+      const displayTime = `${realDateFormatted}, ${realTimeFormatted}`;
+
       const newActivity = {
         id: "act-" + Date.now(),
         questionId,
         questionTitle: questionTitle || "Coding Challenge",
         language: language || "Java",
         passed: Boolean(passed),
-        timestamp: "Just now",
-        statusText: statusText || (passed ? "Accepted" : "Failed")
+        timestamp: displayTime,
+        statusText: statusText || (passed ? "Accepted" : "Output Mismatch")
       };
 
       // Keep recent 15 activities
-      const updatedActivity = [newActivity, ...(prev.activity || []).slice(0, 14)];
+      const updatedActivity = [newActivity, ...currentActivity.slice(0, 14)];
 
       const updatedProgress = {
         ...prev,
@@ -321,7 +358,10 @@ export const AuthProvider = ({ children }) => {
       };
 
       try {
-        localStorage.setItem(`codeforge_progress_${user.email}`, JSON.stringify(updatedProgress));
+        localStorage.setItem(
+          `codeforge_progress_${user.email.toLowerCase()}`,
+          JSON.stringify(updatedProgress)
+        );
       } catch (err) {
         console.error("Failed saving progress:", err);
       }
@@ -330,17 +370,12 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // Reset user's progress if requested during testing/demo
+  // Reset user's progress
   const resetUserProgress = () => {
     if (!user?.email) return;
-    const cleanProgress = {
-      attemptedQuestions: [],
-      solvedQuestions: [],
-      preferredLanguage: "Java",
-      activity: []
-    };
+    const cleanProgress = getCleanProgress();
     setUserProgress(cleanProgress);
-    localStorage.setItem(`codeforge_progress_${user.email}`, JSON.stringify(cleanProgress));
+    localStorage.setItem(`codeforge_progress_${user.email.toLowerCase()}`, JSON.stringify(cleanProgress));
   };
 
   return (
@@ -354,8 +389,8 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         recordQuestionAttempt,
         resetUserProgress,
-        demoEmail: DEMO_EMAIL,
-        demoPassword: DEMO_PASSWORD
+        defaultEmail: DEFAULT_ACCOUNT_EMAIL,
+        defaultPassword: DEFAULT_PASSWORD
       }}
     >
       {children}

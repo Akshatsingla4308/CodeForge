@@ -1,16 +1,62 @@
-# React + Vite
+# CodeForge
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> Online developer compiler and coding practice platform built with React, Vite, and Judge0 Cloud API.
 
-Currently, two official plugins are available:
+**Live Deployment:** [https://code-forge-khaki.vercel.app](https://code-forge-khaki.vercel.app)  
+**Author:** Akshat Singla (`aksaht.singla@gmail.com`)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Multi-Language Cloud Compilation:** Live code execution powered by the external Judge0 Cloud Engine API supporting Java (OpenJDK 17), Python 3, C (GCC), C++, and JavaScript (Node.js).
+- **Automated Output Validation:** Instant test-case verification comparing standard output against expected problem outputs, with execution time and memory consumption metrics.
+- **Problem Library:** Curated programming challenges spanning Easy, Medium, and Hard difficulties with structured inputs, outputs, and multi-language starter templates.
+- **Personalized Progress Tracking:** Browser-persisted user session tracking uniquely solved questions, distinct problem attempts, success rate, and submission timestamps.
+- **Clean Developer Interface:** Understated dark-themed interface built for focus and usability with zero fabricated progress or fake marketing metrics.
+- **Administrator Problem Management:** Protected portal to create, customize, and manage coding challenges across all supported languages.
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Tech Stack
+
+- **Frontend:** React 18, React Router v7, Vite
+- **Styling:** Custom CSS with restrained dark developer palette
+- **Icons:** Lucide React
+- **Compiler API:** Judge0 Cloud Engine (`https://ce.judge0.com`)
+- **Linting:** Oxlint
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Akshatsingla4308/CodeForge.git
+cd CodeForge
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+### Production Build
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## License
+
+MIT License. Developed by Akshat Singla.

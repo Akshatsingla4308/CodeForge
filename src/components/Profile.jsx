@@ -6,16 +6,14 @@ import {
   Calendar,
   CheckCircle2,
   Activity,
-  Code2,
   Edit2,
   Check,
   X,
   RotateCcw,
   Play,
   Clock,
-  Sparkles,
-  Award,
-  Terminal
+  Terminal,
+  Code2
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { initialQuestions } from "../data/questionsData";
@@ -31,18 +29,17 @@ export const Profile = ({ questions = [] }) => {
   const [editName, setEditName] = useState(user?.name || "");
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  const attemptedIds = userProgress?.attemptedQuestions || [];
-  const solvedIds = userProgress?.solvedQuestions || [];
-  const activities = userProgress?.activity || [];
-  const currentLang = userProgress?.preferredLanguage || "Java";
+  const attemptedIds = Array.isArray(userProgress?.attemptedQuestions) ? userProgress.attemptedQuestions : [];
+  const solvedIds = Array.isArray(userProgress?.solvedQuestions) ? userProgress.solvedQuestions : [];
+  const activities = Array.isArray(userProgress?.activity) ? userProgress.activity : [];
 
-  // Calculate stats
+  // Real statistics
   const totalQuestions = safeQuestions.length;
   const attemptedCount = attemptedIds.length;
   const solvedCount = solvedIds.length;
   const accuracy = attemptedCount > 0 ? Math.round((solvedCount / attemptedCount) * 100) : 0;
 
-  // Filter actual solved and attempted question objects
+  // Solved and in-progress question objects
   const solvedQuestionObjects = safeQuestions.filter((q) => solvedIds.includes(q.id));
   const attemptedUnsolvedObjects = safeQuestions.filter(
     (q) => attemptedIds.includes(q.id) && !solvedIds.includes(q.id)
@@ -67,7 +64,7 @@ export const Profile = ({ questions = [] }) => {
       <div className="profile-header-card">
         <div className="profile-avatar-row">
           <div className="profile-avatar-badge">
-            <User size={38} color="#fff" />
+            <User size={36} color="#fff" />
           </div>
 
           <div style={{ flex: 1 }}>
@@ -100,7 +97,7 @@ export const Profile = ({ questions = [] }) => {
                 </form>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                  <h1 className="profile-name">{user?.name || "Student Developer"}</h1>
+                  <h1 className="profile-name">{user?.name || "Developer"}</h1>
                   <button
                     type="button"
                     className="btn-icon-subtle"
@@ -114,30 +111,34 @@ export const Profile = ({ questions = [] }) => {
                   </button>
                 </div>
               )}
-
-              <span className="badge badge-easy">Verified Demo Account</span>
             </div>
 
             <div className="profile-meta-row">
-              <span className="profile-meta-item">
-                <Mail size={14} color="#ff6a00" />
-                {user?.email || "demo@codeforge.dev"}
-              </span>
-              <span className="profile-meta-item">
-                <Calendar size={14} color="#ff6a00" />
-                Joined: {user?.createdAt || "October 2026"}
-              </span>
-              <span className="profile-meta-item">
-                <Award size={14} color="#ff6a00" />
-                Role: {user?.role || "Developer"}
-              </span>
+              {user?.email && (
+                <span className="profile-meta-item">
+                  <Mail size={14} color="#ff6a00" />
+                  {user.email}
+                </span>
+              )}
+              {user?.createdAt && (
+                <span className="profile-meta-item">
+                  <Calendar size={14} color="#ff6a00" />
+                  Member since {user.createdAt}
+                </span>
+              )}
+              {user?.role && (
+                <span className="profile-meta-item">
+                  <Code2 size={14} color="#ff6a00" />
+                  {user.role}
+                </span>
+              )}
             </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "flex-end" }}>
             <Link to="/practice" className="btn-primary" style={{ padding: "0.55rem 1rem", fontSize: "0.88rem" }}>
               <Play size={14} fill="#fff" />
-              Practice Arena
+              Practice Workspace
             </Link>
 
             {showResetConfirm ? (
@@ -162,7 +163,7 @@ export const Profile = ({ questions = [] }) => {
                 className="btn-secondary"
                 onClick={() => setShowResetConfirm(true)}
                 style={{ fontSize: "0.78rem", padding: "0.35rem 0.65rem", color: "var(--text-muted)" }}
-                title="Reset this user's attempted and solved stats"
+                title="Reset progress statistics"
               >
                 <RotateCcw size={12} />
                 Reset Stats
@@ -171,7 +172,7 @@ export const Profile = ({ questions = [] }) => {
           </div>
         </div>
 
-        {/* Highlight Stats Row */}
+        {/* Real Stats Row */}
         <div className="profile-stats-bar">
           <div className="profile-stat-box">
             <span className="profile-stat-num">{solvedCount}</span>
@@ -190,16 +191,16 @@ export const Profile = ({ questions = [] }) => {
 
           <div className="profile-stat-box">
             <span className="profile-stat-num">{totalQuestions}</span>
-            <span className="profile-stat-lbl">Total Problems in Bank</span>
+            <span className="profile-stat-lbl">Available Problems</span>
           </div>
         </div>
       </div>
 
-      {/* Two Column Layout: Problems Breakdown & Languages/Activity */}
+      {/* Two Column Layout: Solved/In-Progress & Activity Log */}
       <div className="profile-body-grid">
         {/* Left Column: Solved & Attempted Challenges */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          {/* Solved Problems Box */}
+          {/* Solved Problems Panel */}
           <div className="dashboard-panel">
             <div className="dashboard-panel-header">
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -215,7 +216,9 @@ export const Profile = ({ questions = [] }) => {
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <h3 className="profile-challenge-title">{q.title}</h3>
-                        <span className="badge badge-easy">{q.difficulty}</span>
+                        <span className={`badge ${q.difficulty === "Easy" ? "badge-easy" : q.difficulty === "Medium" ? "badge-medium" : "badge-hard"}`}>
+                          {q.difficulty}
+                        </span>
                       </div>
                       <p className="profile-challenge-desc">{q.description}</p>
                     </div>
@@ -231,14 +234,14 @@ export const Profile = ({ questions = [] }) => {
                   </div>
                 ))
               ) : (
-                <div style={{ color: "var(--text-dim)", padding: "1.25rem", textAlign: "center", fontSize: "0.88rem" }}>
-                  No questions solved yet. Open the <Link to="/practice" style={{ color: "var(--orange-400)" }}>practice workspace</Link> to run and solve challenges!
+                <div style={{ color: "var(--text-dim)", padding: "1.75rem", textAlign: "center", fontSize: "0.88rem" }}>
+                  No challenges solved yet. Visit the <Link to="/practice" style={{ color: "var(--orange-400)" }}>practice workspace</Link> to run and solve problems.
                 </div>
               )}
             </div>
           </div>
 
-          {/* Attempted (In Progress) Problems */}
+          {/* In Progress Challenges (if any) */}
           {attemptedUnsolvedObjects.length > 0 && (
             <div className="dashboard-panel">
               <div className="dashboard-panel-header">
@@ -254,7 +257,9 @@ export const Profile = ({ questions = [] }) => {
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <h3 className="profile-challenge-title">{q.title}</h3>
-                        <span className="badge badge-medium">{q.difficulty}</span>
+                        <span className={`badge ${q.difficulty === "Easy" ? "badge-easy" : q.difficulty === "Medium" ? "badge-medium" : "badge-hard"}`}>
+                          {q.difficulty}
+                        </span>
                       </div>
                       <p className="profile-challenge-desc">{q.description}</p>
                     </div>
@@ -272,53 +277,14 @@ export const Profile = ({ questions = [] }) => {
               </div>
             </div>
           )}
-
-          {/* Supported Languages Card */}
-          <div className="dashboard-panel">
-            <div className="dashboard-panel-header">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Code2 size={18} color="#ff6a00" />
-                <h2 className="dashboard-panel-title">Available Programming Environments</h2>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem", padding: "1.25rem" }}>
-              {[
-                { name: "C", engine: "GCC 9.2.0" },
-                { name: "C++", engine: "GCC 9.2.0" },
-                { name: "Java", engine: "OpenJDK 17" },
-                { name: "Python", engine: "Python 3.10" },
-                { name: "JavaScript", engine: "Node.js 18.x" }
-              ].map((l) => (
-                <div
-                  key={l.name}
-                  onClick={() => navigate("/practice", { state: { language: l.name } })}
-                  style={{
-                    background: "var(--bg-surface)",
-                    border: "1px solid var(--border)",
-                    borderRadius: "8px",
-                    padding: "0.75rem",
-                    cursor: "pointer",
-                    transition: "border-color 0.2s"
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--orange-500)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
-                >
-                  <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.95rem" }}>{l.name}</div>
-                  <div style={{ fontSize: "0.76rem", color: "var(--text-dim)", marginTop: "0.2rem" }}>{l.engine}</div>
-                  <div style={{ fontSize: "0.72rem", color: "#22c55e", marginTop: "0.4rem" }}>&bull; Judge0 Live</div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* Right Column: Complete Activity Timeline */}
+        {/* Right Column: Submission History */}
         <div className="dashboard-panel">
           <div className="dashboard-panel-header">
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <Clock size={18} color="#ff6a00" />
-              <h2 className="dashboard-panel-title">Activity Log & Submission History</h2>
+              <h2 className="dashboard-panel-title">Submission History</h2>
             </div>
           </div>
 
@@ -357,15 +323,15 @@ export const Profile = ({ questions = [] }) => {
                           color: act.passed ? "#22c55e" : "var(--text-muted)"
                         }}
                       >
-                        {act.statusText || (act.passed ? "Accepted" : "Tested")}
+                        {act.statusText || (act.passed ? "Accepted" : "Output Mismatch")}
                       </span>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div style={{ color: "var(--text-dim)", padding: "2rem", textAlign: "center", fontSize: "0.88rem" }}>
-                No activity recorded for this user yet.
+              <div style={{ color: "var(--text-dim)", padding: "2.5rem 1.5rem", textAlign: "center", fontSize: "0.88rem" }}>
+                No submissions recorded yet.
               </div>
             )}
           </div>

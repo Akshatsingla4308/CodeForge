@@ -92,7 +92,7 @@ input, textarea, select {
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 0 16px rgba(255, 106, 0, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .brand-title {
@@ -152,13 +152,13 @@ input, textarea, select {
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
-  box-shadow: 0 4px 18px rgba(255, 106, 0, 0.35);
+  box-shadow: 0 2px 8px rgba(255, 106, 0, 0.2);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(255, 106, 0, 0.5);
+  box-shadow: 0 4px 14px rgba(255, 106, 0, 0.3);
 }
 
 .btn-primary:active {
@@ -234,7 +234,7 @@ input, textarea, select {
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
+
   margin-bottom: 1.5rem;
   position: relative;
   z-index: 2;
@@ -391,7 +391,7 @@ input, textarea, select {
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
+
   letter-spacing: 0.5px;
 }
 
@@ -596,7 +596,7 @@ input, textarea, select {
 .detail-label {
   font-size: 0.78rem;
   font-weight: 700;
-  text-transform: uppercase;
+
   letter-spacing: 0.8px;
   color: var(--orange-400);
 }
@@ -681,7 +681,7 @@ input, textarea, select {
   gap: 0.5rem;
   font-size: 0.82rem;
   font-weight: 700;
-  text-transform: uppercase;
+
   letter-spacing: 0.6px;
   color: var(--text-muted);
 }
@@ -906,6 +906,26 @@ input, textarea, select {
   line-height: 1.45;
 }
 
+.auth-eval-note {
+  margin-top: 1.25rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.auth-eval-note code {
+  color: var(--orange-400);
+  background: rgba(255, 106, 0, 0.08);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
 .demo-credentials-banner {
   background: rgba(255, 106, 0, 0.08);
   border: 1px solid var(--orange-border);
@@ -1029,7 +1049,7 @@ input, textarea, select {
   color: var(--orange-400);
   font-size: 0.78rem;
   font-weight: 700;
-  text-transform: uppercase;
+
   letter-spacing: 0.5px;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -1092,7 +1112,7 @@ input, textarea, select {
 .stat-card-label {
   font-size: 0.82rem;
   font-weight: 600;
-  text-transform: uppercase;
+
   letter-spacing: 0.5px;
   color: var(--text-muted);
 }
@@ -1523,7 +1543,7 @@ input, textarea, select {
 .spec-label {
   color: var(--text-dim);
   font-weight: 600;
-  text-transform: uppercase;
+
   font-size: 0.72rem;
   letter-spacing: 0.5px;
 }
@@ -1601,7 +1621,7 @@ input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 24px rgba(255, 106, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
 }
 
@@ -1662,7 +1682,7 @@ input, textarea, select {
 .profile-stat-lbl {
   font-size: 0.8rem;
   color: var(--text-dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.5px;
   font-weight: 600;
 }

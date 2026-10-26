@@ -1,29 +1,26 @@
 import React, { useState } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
-import { Terminal, Lock, Mail, User, AlertCircle, ArrowRight, Check } from "lucide-react";
+import { Terminal, Lock, Mail, User, AlertCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export const SignUp = () => {
   const navigate = useNavigate();
   const { user, signup } = useAuth();
 
-  // If already authenticated, redirect directly to dashboard
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  // Local form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Error state for validation messages
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Basic email regex format check
+  // If already authenticated, redirect directly to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const validateEmail = (val) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
   };
@@ -33,16 +30,13 @@ export const SignUp = () => {
     setServerError("");
     const newErrors = {};
 
-    // 1. All fields required
     if (!name.trim()) newErrors.name = "Full name is required.";
     if (!email.trim()) newErrors.email = "Email is required.";
     else if (!validateEmail(email)) newErrors.email = "Please enter a valid email address.";
 
-    // 2. Password length at least 6 characters
     if (!password) newErrors.password = "Password is required.";
     else if (password.length < 6) newErrors.password = "Password must contain at least 6 characters.";
 
-    // 3. Confirm password matches
     if (!confirmPassword) newErrors.confirmPassword = "Confirm password is required.";
     else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match.";
 
@@ -58,10 +52,9 @@ export const SignUp = () => {
     setIsSubmitting(false);
 
     if (result.success) {
-      // Redirect to dashboard upon successful demo account creation
       navigate("/dashboard");
     } else {
-      setServerError(result.message || "Failed to create demo account.");
+      setServerError(result.message || "Failed to create account.");
     }
   };
 
@@ -70,14 +63,17 @@ export const SignUp = () => {
       <div className="auth-card">
         {/* Brand Header */}
         <div className="auth-header">
-          <div className="logo-badge" style={{ margin: "0 auto 1rem", width: "48px", height: "48px" }}>
-            <Terminal size={24} />
-          </div>
-          <h1 className="auth-title">
-            Join Code<span>Forge</span>
-          </h1>
+          <Link to="/" className="nav-brand" style={{ justifyContent: "center", marginBottom: "1.25rem" }}>
+            <div className="logo-badge">
+              <Terminal size={20} strokeWidth={2.5} />
+            </div>
+            <div className="brand-title">
+              Code<span>Forge</span>
+            </div>
+          </Link>
+          <h1 className="auth-title">Create Account</h1>
           <p className="auth-subtitle">
-            Create a demo student account to track questions attempted, solved code, and your personal profile.
+            Sign up to track your solved problems, accuracy rate, and coding activity.
           </p>
         </div>
 
@@ -104,6 +100,8 @@ export const SignUp = () => {
                   setName(e.target.value);
                   if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
                 }}
+                autoComplete="name"
+                required
               />
               <User size={16} style={{ position: "absolute", left: "0.85rem", color: "var(--text-dim)" }} />
             </div>
@@ -117,12 +115,14 @@ export const SignUp = () => {
                 type="email"
                 className="form-input"
                 style={{ width: "100%", paddingLeft: "2.5rem" }}
-                placeholder="student@codeforge.dev"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
                 }}
+                autoComplete="email"
+                required
               />
               <Mail size={16} style={{ position: "absolute", left: "0.85rem", color: "var(--text-dim)" }} />
             </div>
@@ -130,7 +130,7 @@ export const SignUp = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Password (min 6 characters)</label>
+            <label className="form-label">Password</label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <input
                 type="password"
@@ -142,6 +142,8 @@ export const SignUp = () => {
                   setPassword(e.target.value);
                   if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
                 }}
+                autoComplete="new-password"
+                required
               />
               <Lock size={16} style={{ position: "absolute", left: "0.85rem", color: "var(--text-dim)" }} />
             </div>
@@ -161,6 +163,8 @@ export const SignUp = () => {
                   setConfirmPassword(e.target.value);
                   if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: "" }));
                 }}
+                autoComplete="new-password"
+                required
               />
               <Lock size={16} style={{ position: "absolute", left: "0.85rem", color: "var(--text-dim)" }} />
             </div>
@@ -173,7 +177,7 @@ export const SignUp = () => {
             style={{ width: "100%", padding: "0.75rem", marginTop: "0.5rem" }}
             disabled={isSubmitting}
           >
-            <span>Create Demo Account</span>
+            <span>Create Account</span>
             <ArrowRight size={16} />
           </button>
         </form>
@@ -182,7 +186,7 @@ export const SignUp = () => {
         <div className="auth-footer-link">
           Already have an account?{" "}
           <Link to="/signin" className="auth-accent-link">
-            Sign In here
+            Sign In
           </Link>
         </div>
       </div>

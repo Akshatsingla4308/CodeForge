@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Play, RotateCcw, CheckCircle2, XCircle, Code2, Terminal, Info, Globe, Cpu } from "lucide-react";
+import { Play, RotateCcw, CheckCircle2, XCircle, Terminal, Info, Globe, Cpu } from "lucide-react";
 import { executeExternalCode } from "../utils/javaRunner";
 import { initialQuestions } from "../data/questionsData";
 import { useAuth } from "../context/AuthContext";
@@ -59,7 +59,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
     if (langFromParam && ["Java", "Python", "C", "C++", "JavaScript"].includes(langFromParam)) {
       setSelectedLang(langFromParam);
     }
-  }, [location.search, location.state]);
+  }, [location.search, location.state, activeQuestionId, setActiveQuestionId]);
 
   // When question or language changes, update the editor code
   useEffect(() => {
@@ -72,7 +72,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
   const handleLanguageChange = (lang) => {
     setSelectedLang(lang);
     if (lang !== "Java") {
-      setLangNotice(`${lang} is fully supported via Judge0 Cloud Engine API.`);
+      setLangNotice(`${lang} compiler ready via Judge0 Cloud API.`);
     } else {
       setLangNotice("");
     }
@@ -124,52 +124,15 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
       {/* Top Language Selector Bar */}
       <div className="language-bar">
         <div className="language-tabs">
-          <button
-            className={`lang-tab-btn ${selectedLang === "Java" ? "active" : ""}`}
-            onClick={() => handleLanguageChange("Java")}
-          >
-            <Code2 size={16} />
-            Java
-            <span className="badge badge-easy" style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}>
-              Active
-            </span>
-          </button>
-          <button
-            className={`lang-tab-btn ${selectedLang === "Python" ? "active" : ""}`}
-            onClick={() => handleLanguageChange("Python")}
-          >
-            Python
-            <span className="badge badge-lang" style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}>
-              API Ready
-            </span>
-          </button>
-          <button
-            className={`lang-tab-btn ${selectedLang === "C" ? "active" : ""}`}
-            onClick={() => handleLanguageChange("C")}
-          >
-            C
-            <span className="badge badge-lang" style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}>
-              API Ready
-            </span>
-          </button>
-          <button
-            className={`lang-tab-btn ${selectedLang === "C++" ? "active" : ""}`}
-            onClick={() => handleLanguageChange("C++")}
-          >
-            C++
-            <span className="badge badge-lang" style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}>
-              API Ready
-            </span>
-          </button>
-          <button
-            className={`lang-tab-btn ${selectedLang === "JavaScript" ? "active" : ""}`}
-            onClick={() => handleLanguageChange("JavaScript")}
-          >
-            JavaScript
-            <span className="badge badge-lang" style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}>
-              Node.js
-            </span>
-          </button>
+          {["Java", "Python", "C", "C++", "JavaScript"].map((lang) => (
+            <button
+              key={lang}
+              className={`lang-tab-btn ${selectedLang === lang ? "active" : ""}`}
+              onClick={() => handleLanguageChange(lang)}
+            >
+              {lang}
+            </button>
+          ))}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
@@ -180,9 +143,9 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
             </div>
           )}
 
-          <div className="user-tag" style={{ border: "1px solid var(--orange-border)" }}>
-            <Globe size={13} color="#ff6a00" />
-            <span style={{ fontSize: "0.8rem", color: "var(--orange-400)" }}>External API: Judge0 Cloud Engine</span>
+          <div className="user-tag">
+            <Globe size={13} color="#22c55e" />
+            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Judge0 Cloud API</span>
           </div>
         </div>
       </div>
@@ -233,7 +196,9 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
                     <CheckCircle2 size={12} /> Solved
                   </span>
                 )}
-                <span className="badge badge-easy">{currentQuestion.difficulty}</span>
+                <span className={`badge ${currentQuestion.difficulty === "Easy" ? "badge-easy" : currentQuestion.difficulty === "Medium" ? "badge-medium" : "badge-hard"}`}>
+                  {currentQuestion.difficulty}
+                </span>
               </div>
             )}
           </div>
@@ -242,7 +207,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
             {currentQuestion ? (
               <>
                 <div className="detail-block">
-                  <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#fff" }}>
+                  <h2 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#fff" }}>
                     {currentQuestion.title}
                   </h2>
                   <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.35rem" }}>
@@ -322,7 +287,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
                 style={{ padding: "0.4rem 1rem", fontSize: "0.85rem" }}
               >
                 <Play size={14} fill="#fff" />
-                {isRunning ? "Compiling via API..." : "Run Code"}
+                {isRunning ? "Running..." : "Run Code"}
               </button>
             </div>
           </div>
@@ -348,7 +313,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
               <div className="console-header">
                 <div className="console-title">
                   <Terminal size={14} />
-                  Remote Compiler Output
+                  Console Output
                 </div>
 
                 {runResult && (
@@ -364,7 +329,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
                     {runResult.passed ? (
                       <span className="badge badge-easy">
                         <CheckCircle2 size={12} />
-                        Test Passed
+                        Passed
                       </span>
                     ) : (
                       <span className="badge badge-hard">
@@ -380,13 +345,13 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
                 {isRunning ? (
                   <div style={{ color: "var(--orange-400)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <Cpu size={16} />
-                    Connecting to external Judge0 compiler API & compiling code...
+                    Executing via Judge0 Cloud API...
                   </div>
                 ) : runResult ? (
                   <div>
                     <div style={{ marginBottom: "0.75rem" }}>
-                      <span style={{ color: "var(--text-dim)" }}>
-                        [Remote API: {runResult.apiProvider}] {runResult.statusDesc}
+                      <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>
+                        [{runResult.apiProvider}] {runResult.statusDesc}
                       </span>
                     </div>
                     <div style={{ color: runResult.success ? "#22c55e" : "#ef4444" }}>
@@ -415,7 +380,7 @@ export const CompilerWorkspace = ({ questions = [], activeQuestionId, setActiveQ
                   </div>
                 ) : (
                   <div style={{ color: "var(--text-dim)" }}>
-                    Press "Run Code" above to send code to the external compiler API.
+                    Click "Run Code" above to execute your solution with the Judge0 API.
                   </div>
                 )}
               </div>

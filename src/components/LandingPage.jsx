@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { SparklesCore } from "./SparklesCore";
-import { ArrowRight, Code2, Zap, Lock, Cpu, Play, ChevronRight, Shield } from "lucide-react";
+import { ArrowRight, Code2, Cpu, Play, ChevronRight, CheckCircle2, Terminal } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { initialQuestions } from "../data/questionsData";
 
@@ -10,61 +9,62 @@ export const LandingPage = ({ questions = [] }) => {
   const { user } = useAuth();
   const safeQuestions = Array.isArray(questions) && questions.length > 0 ? questions : initialQuestions;
 
-  const handleGetStarted = () => {
-    if (user) {
-      navigate("/dashboard");
-    } else {
-      navigate("/signin");
-    }
-  };
-
-  const handleSolveChallenge = (q) => {
-    navigate(`/practice?qid=${q.id}`);
-  };
-
   return (
     <div className="landing-container">
-      {/* Hero Section with Canvas Particle Sparkles */}
+      {/* Hero Section */}
       <section className="hero-section">
-        <SparklesCore
-          id="hero-sparkles"
-          particleColor="#ff6a00"
-          particleDensity={85}
-          speed={1.4}
-          minSize={1.2}
-          maxSize={3.2}
-        />
-
         <div className="hero-badge">
-          <Zap size={14} />
-          High-Speed Developer Arena
+          <Terminal size={14} />
+          Online Coding Practice
         </div>
 
         <h1 className="hero-title">
-          Code, Compile, and Master Algorithms on <span className="hero-gradient-text">CodeForge</span>
+          Code, Compile, and Practice on <span className="hero-gradient-text">CodeForge</span>
         </h1>
 
         <p className="hero-subtitle">
-          An intuitive coding environment with live multi-language compilation, real-time output validation, and a dynamic problem creation arena.
+          An interactive coding environment with multi-language execution, instant test-case validation, and personal progress tracking.
         </p>
 
         <div className="hero-actions">
-          <button
-            className="btn-primary"
-            onClick={handleGetStarted}
-            style={{ padding: "0.85rem 1.85rem", fontSize: "1.05rem" }}
-          >
-            {user ? "Go to Dashboard" : "Get Started (Demo)"}
-            <ArrowRight size={18} />
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => navigate("/practice")}
-            style={{ padding: "0.85rem 1.6rem", fontSize: "1.05rem" }}
-          >
-            <Play size={18} color="#ff6a00" />
-            Open Practice Workspace
-          </button>
+          {user ? (
+            <>
+              <button
+                className="btn-primary"
+                onClick={() => navigate("/dashboard")}
+                style={{ padding: "0.8rem 1.6rem", fontSize: "1rem" }}
+              >
+                Go to Dashboard
+                <ArrowRight size={17} />
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => navigate("/practice")}
+                style={{ padding: "0.8rem 1.5rem", fontSize: "1rem" }}
+              >
+                <Play size={16} color="#ff6a00" />
+                Practice Workspace
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn-primary"
+                onClick={() => navigate("/signin")}
+                style={{ padding: "0.8rem 1.6rem", fontSize: "1rem" }}
+              >
+                Start Practicing
+                <ArrowRight size={17} />
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => navigate("/problems")}
+                style={{ padding: "0.8rem 1.5rem", fontSize: "1rem" }}
+              >
+                Browse Problems
+              </button>
+            </>
+          )}
         </div>
       </section>
 
@@ -72,41 +72,41 @@ export const LandingPage = ({ questions = [] }) => {
       <section className="features-grid">
         <div className="feature-card">
           <div className="feature-icon-wrapper">
-            <Code2 size={22} />
+            <Code2 size={20} />
           </div>
-          <h3>External Cloud Compiler</h3>
+          <h3>Multi-Language Compiler</h3>
           <p>
-            Powered by high-performance Judge0 Cloud API execution for real native Java, Python, C, C++, and JavaScript execution.
+            Execute solutions in Java, Python, C, C++, and JavaScript powered by Judge0 Cloud API runtimes.
           </p>
         </div>
 
         <div className="feature-card">
           <div className="feature-icon-wrapper">
-            <Cpu size={22} />
+            <CheckCircle2 size={20} />
           </div>
-          <h3>5 Language Runtimes</h3>
+          <h3>Output Validation</h3>
           <p>
-            Full support for Java, Python 3, C (GCC), C++, and JavaScript (Node.js) with remote execution metrics.
+            Verify code output against sample inputs and expected results with clear pass/fail status reporting.
           </p>
         </div>
 
         <div className="feature-card">
           <div className="feature-icon-wrapper">
-            <Zap size={22} />
+            <Cpu size={20} />
           </div>
-          <h3>Instant Validation</h3>
+          <h3>Curated Problems</h3>
           <p>
-            Verify algorithm solutions against automated test outputs and inspect execution metrics with exact matching.
+            Solve algorithm problems categorized by difficulty, each with structured inputs, outputs, and starter code.
           </p>
         </div>
 
         <div className="feature-card">
           <div className="feature-icon-wrapper">
-            <Shield size={22} />
+            <Terminal size={20} />
           </div>
-          <h3>Student Progress Tracking</h3>
+          <h3>Personal Progress</h3>
           <p>
-            Track questions attempted, solved code, and user statistics stored safely in browser localStorage.
+            Track solved challenges, submission history, and success rates tied directly to your account.
           </p>
         </div>
       </section>
@@ -114,9 +114,9 @@ export const LandingPage = ({ questions = [] }) => {
       {/* Starter Challenges Section */}
       <section className="section-container">
         <div className="section-header">
-          <h2 className="section-title">Starter Coding Challenges</h2>
+          <h2 className="section-title">Practice Problems</h2>
           <p className="section-desc">
-            Get started with these fundamental questions or create your own inside the platform.
+            Explore challenges from the question bank to test your problem-solving skills.
           </p>
         </div>
 
@@ -125,7 +125,9 @@ export const LandingPage = ({ questions = [] }) => {
             <div key={q.id} className="problem-card">
               <div>
                 <div className="problem-card-top">
-                  <span className="badge badge-easy">{q.difficulty}</span>
+                  <span className={`badge ${q.difficulty === "Easy" ? "badge-easy" : q.difficulty === "Medium" ? "badge-medium" : "badge-hard"}`}>
+                    {q.difficulty}
+                  </span>
                   <span className="badge badge-lang">{q.language || "Multi-Lang"}</span>
                 </div>
                 <h3 className="problem-title">{q.title}</h3>
@@ -134,8 +136,8 @@ export const LandingPage = ({ questions = [] }) => {
 
               <button
                 className="btn-secondary"
-                onClick={() => handleSolveChallenge(q)}
-                style={{ width: "100%", justifyContent: "space-between" }}
+                onClick={() => navigate(user ? `/practice?qid=${q.id}` : "/signin")}
+                style={{ width: "100%", justifyContent: "space-between", marginTop: "1rem" }}
               >
                 <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <Play size={14} color="#ff6a00" />

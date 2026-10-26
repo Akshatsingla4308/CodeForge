@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { Navbar } from "./components/Navbar";
 import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
@@ -138,15 +138,15 @@ function AppContent() {
       <footer className="footer">
         <div className="footer-brand">
           <Terminal size={16} color="#ff6a00" />
-          <span>CodeForge &bull; Online Developer Compiler & Arena</span>
+          <span>CodeForge &bull; Online Compiler & Practice</span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
           <div className="status-indicator">
             <span className="status-dot"></span>
-            Judge0 Cloud API Active (5 Runtimes)
+            Judge0 Cloud Compiler Active
           </div>
-          <span>Black & Orange Edition</span>
+
         </div>
       </footer>
     </div>

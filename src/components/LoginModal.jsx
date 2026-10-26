@@ -22,7 +22,7 @@ export const LoginModal = ({ isOpen, onClose, onLogin }) => {
 
   const handleQuickDemo = (roleName) => {
     onLogin({
-      name: roleName === "Admin" ? "Admin User" : "Demo Developer",
+      name: roleName === "Admin" ? "Admin User" : "Akshat Singla",
       email: `${roleName.toLowerCase()}@codeforge.dev`,
       role: roleName
     });
